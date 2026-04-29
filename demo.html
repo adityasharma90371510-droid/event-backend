@@ -66,13 +66,6 @@ button {
     font-weight: bold;
     margin-bottom: 10px;
 }
-
-#newBtn {
-    font-size: 14px;
-    cursor: pointer;
-    color: #333;
-    margin-top: 10px;
-}
 </style>
 </head>
 
@@ -97,9 +90,7 @@ button {
 
     <img class="diya" src="https://cdn-icons-png.flaticon.com/512/869/869869.png">
 
-    <div id="thankText">Thank you for registering</div>
-
-    <div id="newBtn" onclick="resetForm()">Start new registration</div>
+    <div id="thankText">Thank you for registering 🎉</div>
 
 </div>
 
@@ -115,7 +106,7 @@ function register() {
 
     errorDiv.innerText = "";
 
-    // FULL NAME VALIDATION
+    // VALIDATION
     if (!name) {
         errorDiv.innerText = "Please enter your name";
         return;
@@ -126,7 +117,8 @@ function register() {
         return;
     }
 
-    fetch("http://127.0.0.1:5001/submit-name", {
+    // API CALL (PRODUCTION SAFE)
+    fetch("/submit-name", {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
@@ -144,7 +136,7 @@ function register() {
 
     })
     .catch(() => {
-        errorDiv.innerText = "Server error";
+        errorDiv.innerText = "Server error. Please try again.";
     });
 }
 
@@ -152,16 +144,6 @@ function register() {
 function showThankYou() {
     document.getElementById("formScreen").style.display = "none";
     document.getElementById("thankYou").style.display = "block";
-}
-
-
-function resetForm() {
-
-    document.getElementById("name").value = "";
-    document.getElementById("error").innerText = "";
-
-    document.getElementById("thankYou").style.display = "none";
-    document.getElementById("formScreen").style.display = "block";
 }
 
 </script>
