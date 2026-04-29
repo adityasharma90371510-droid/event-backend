@@ -7,8 +7,10 @@
 body {
     margin: 0;
     height: 100vh;
-    overflow: hidden;
     font-family: Arial;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
     background: linear-gradient(to top,
         #5aa9d6,
@@ -17,152 +19,119 @@ body {
         #ff9a9e);
 }
 
-.scene {
-    position: absolute;
-    bottom: -300px;
-    left: 50%;
-    transform: translateX(-50%);
+.card {
     text-align: center;
-    transition: all 1.2s ease;
 }
 
-.rise {
-    bottom: 120px;
-}
-
-.fly {
-    transform: translate(-50%, -1200px);
-    transition: transform 3s ease-in-out;
-}
-
-.balloon {
-    width: 180px;
-}
-
-.basket {
-    width: 230px;
-    background: white;
-    border-radius: 12px;
-    padding: 15px;
-    margin-top: -10px;
-    box-shadow: 0 6px 25px rgba(0,0,0,0.3);
+.diya {
+    width: 120px;
+    margin-bottom: 20px;
 }
 
 input {
-    width: 100%;
-    margin: 6px 0;
-    padding: 6px;
+    width: 250px;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 6px;
+    border: none;
 }
 
 button {
-    margin-top: 8px;
-    padding: 8px;
-    width: 100%;
+    padding: 10px;
+    width: 250px;
     cursor: pointer;
+    border: none;
+    border-radius: 6px;
 }
 
-#finalScreen {
-    position: absolute;
-    top: 40%;
-    width: 100%;
-    text-align: center;
-    display: none;
-}
-
-#finalText {
-    font-size: 40px;
-    font-weight: bold;
-}
-
-#restartBtn {
-    margin-top: 10px;
+#error {
+    color: red;
     font-size: 14px;
-    cursor: pointer;
+    margin-top: 5px;
 }
 
+#thankYou {
+    display: none;
+    text-align: center;
+}
+
+#thankText {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
 </style>
 </head>
 
 <body>
 
-<div id="scene" class="scene">
+<div id="formScreen" class="card">
 
-    <!-- FIX THIS IMAGE MANUALLY -->
-    <img class="balloon"
-    src="https://cdn-icons-png.flaticon.com/512/744/744465.png">
+    <img class="diya" src="https://cdn-icons-png.flaticon.com/512/869/869869.png">
 
-    <div class="basket">
+    <!-- ✅ ONLY NAME -->
+    <input id="name" placeholder="Enter your full name">
 
-        <input id="name" placeholder="Name">
-        <input id="occupation" placeholder="Occupation">
-        <input id="city" placeholder="City">
+    <div id="error"></div>
 
-        <button onclick="register()">Register</button>
+    <button onclick="register()">Submit</button>
 
-    </div>
 </div>
 
-<div id="finalScreen">
-    <div id="finalText">THANK YOU FOR REGISTERING 🎉</div>
-    <div id="restartBtn" onclick="startNew()">start new registration</div>
+<div id="thankYou">
+
+    <img class="diya" src="https://cdn-icons-png.flaticon.com/512/869/869869.png">
+
+    <div id="thankText">Thank you for registering 🎉</div>
+
 </div>
 
 <script>
 
-window.onload = () => {
-    setTimeout(() => {
-        scene.classList.add("rise");
-    }, 200);
-};
-
 function register() {
 
-    fetch("http://127.0.0.1:5001/clients", {
+    const nameInput = document.getElementById("name");
+    const errorDiv = document.getElementById("error");
+
+    let name = nameInput.value.trim();
+
+    errorDiv.innerText = "";
+
+    if (!name) {
+        errorDiv.innerText = "Please enter your name";
+        return;
+    }
+
+    if (name.split(" ").length < 2) {
+        errorDiv.innerText = "Please enter your full name";
+        return;
+    }
+
+    fetch("/submit-name", {
         method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-            name: name.value,
-            occupation: occupation.value,
-            city: city.value
-        })
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ name: name })
     })
     .then(res => res.json())
-    .then(() => {
-        launch();
+    .then(data => {
+
+        if (data.error) {
+            errorDiv.innerText = data.error;
+        } else {
+            showThankYou();
+        }
+
+    })
+    .catch(() => {
+        errorDiv.innerText = "Server error";
     });
 }
 
-function launch() {
-
-    scene.classList.remove("rise");
-    scene.classList.add("fly");
-
-    setTimeout(() => {
-        scene.style.display = "none";
-        finalScreen.style.display = "block";
-    }, 3000);
-}
-
-function startNew() {
-
-    finalScreen.style.display = "none";
-
-    scene.style.display = "block";
-    scene.classList.remove("fly");
-
-    scene.style.bottom = "-300px";
-
-    // reset inputs
-    document.querySelectorAll("input").forEach(i => i.value = "");
-
-    // IMPORTANT: force reflow trick (fixes your bug)
-    void scene.offsetHeight;
-
-    scene.classList.remove("rise");
-
-    setTimeout(() => {
-        scene.classList.add("rise");
-    }, 100);
+function showThankYou() {
+    document.getElementById("formScreen").style.display = "none";
+    document.getElementById("thankYou").style.display = "block";
 }
 
 </script>
