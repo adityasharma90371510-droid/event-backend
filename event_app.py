@@ -1,4 +1,4 @@
-# event_event_app_py_final_real_fixed
+# event_event_app_py_final_render_ready
 
 from flask import Flask
 from flask_cors import CORS
@@ -11,11 +11,11 @@ from event_models import db
 def create_app():
     load_dotenv()
 
-    # 👉 ensure static folder is used (where demo.html lives)
+    # 👉 Flask app with static folder (for demo.html)
     app = Flask(__name__, static_folder="static")
     CORS(app)
 
-    # 👉 DB config (relative file in project folder)
+    # 👉 Database config
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -49,22 +49,5 @@ def create_app():
     return app
 
 
-if __name__ == '__main__':
-    app = create_app()
-
-    port = 5001
-
-    # 👉 get local network IP (for QR testing on phones)
-    local_ip = "127.0.0.1"
-    try:
-        import socket
-        local_ip = socket.gethostbyname(socket.gethostname())
-    except:
-        pass
-
-    print(f"\nServer running:")
-    print(f"Local:   http://127.0.0.1:{port}")
-    print(f"Network: http://{local_ip}:{port}\n")
-
-    port = int(os.environ.get("PORT", 5001))
-app.run(host='0.0.0.0', port=port)
+# 🔥 REQUIRED FOR GUNICORN (DO NOT REMOVE)
+app = create_app()
