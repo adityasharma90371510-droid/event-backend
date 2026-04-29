@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Event Registration</title>
+
+<style>
+body {
+    margin: 0;
+    height: 100vh;
+    font-family: Arial;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: linear-gradient(to top,
+        #5aa9d6,
+        #87CEEB,
+        #ffd194,
+        #ff9a9e);
+}
+
+/* MAIN CARD */
+.card {
+    text-align: center;
+}
+
+/* DIYA IMAGE */
+.diya {
+    width: 120px;
+    margin-bottom: 20px;
+}
+
+/* INPUT */
+input {
+    width: 250px;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 6px;
+    border: none;
+}
+
+/* BUTTON */
+button {
+    padding: 10px;
+    width: 250px;
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+}
+
+/* ERROR */
+#error {
+    color: red;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+/* THANK YOU SCREEN */
+#thankYou {
+    display: none;
+    text-align: center;
+}
+
+#thankText {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+#newBtn {
+    font-size: 14px;
+    cursor: pointer;
+    color: #333;
+    margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- REGISTRATION -->
+<div id="formScreen" class="card">
+
+    <img class="diya" src="https://cdn-icons-png.flaticon.com/512/869/869869.png">
+
+    <input id="name" placeholder="Enter your full name">
+
+    <div id="error"></div>
+
+    <button onclick="register()">Submit</button>
+
+</div>
+
+
+<!-- THANK YOU -->
+<div id="thankYou">
+
+    <img class="diya" src="https://cdn-icons-png.flaticon.com/512/869/869869.png">
+
+    <div id="thankText">Thank you for registering</div>
+
+    <div id="newBtn" onclick="resetForm()">Start new registration</div>
+
+</div>
+
+
+<script>
+
+function register() {
+
+    const nameInput = document.getElementById("name");
+    const errorDiv = document.getElementById("error");
+
+    let name = nameInput.value.trim();
+
+    errorDiv.innerText = "";
+
+    // FULL NAME VALIDATION
+    if (!name) {
+        errorDiv.innerText = "Please enter your name";
+        return;
+    }
+
+    if (name.split(" ").length < 2) {
+        errorDiv.innerText = "Please enter your full name";
+        return;
+    }
+
+    fetch("http://127.0.0.1:5001/submit-name", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ name: name })
+    })
+    .then(res => res.json())
+    .then(data => {
+
+        if (data.error) {
+            errorDiv.innerText = data.error;
+        } else {
+            showThankYou();
+        }
+
+    })
+    .catch(() => {
+        errorDiv.innerText = "Server error";
+    });
+}
+
+
+function showThankYou() {
+    document.getElementById("formScreen").style.display = "none";
+    document.getElementById("thankYou").style.display = "block";
+}
+
+
+function resetForm() {
+
+    document.getElementById("name").value = "";
+    document.getElementById("error").innerText = "";
+
+    document.getElementById("thankYou").style.display = "none";
+    document.getElementById("formScreen").style.display = "block";
+}
+
+</script>
+
+</body>
+</html>
